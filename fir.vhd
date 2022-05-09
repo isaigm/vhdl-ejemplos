@@ -32,16 +32,17 @@ use IEEE.NUMERIC_STD.ALL;
 entity filter is
 	generic (n : integer := 5);
 	Port(clk, reset: in std_logic; 
-	x_in: in signed (15 downto 0); y_out: out signed(31 downto 0));
+	x_in: in unsigned (15 downto 0); y_out: out unsigned(31 downto 0));
 end filter;
 
 architecture Behavioral of filter is
-type mem is array(0 to n) of signed(15 downto 0);
+type mem is array(0 to n) of unsigned(15 downto 0);
 signal delay_line: mem := (others=>(others=>'0'));
 signal coef: mem := (x"0001",x"0002",x"0003",x"0004",x"0005", x"0006");
-signal sop: signed(31 downto 0):= (others => '0'); --sum of products
+
 begin
 	process(clk)
+	variable sop: unsigned(31 downto 0):= (others => '0'); --sum of products
 	begin
 		if rising_edge(clk) then
 			for i in n downto 1 loop
@@ -49,11 +50,13 @@ begin
 			end loop;
 			delay_line(0) <= x_in;
 			for i in 0 to n loop
-				sop <= sop + coef(i) * delay_line(i);
+				sop := sop + coef(i) * delay_line(i);
 			end loop;
-			y_out <= sop;
-			sop <= (others => '0');
+			y_out <=  sop;
+			sop := (others => '0');
 		end if;
 	end process;
 end Behavioral;
+
+
 
