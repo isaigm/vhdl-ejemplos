@@ -1,23 +1,3 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date: 14.06.2022 10:40:05
--- Design Name: 
--- Module Name: mov_avg_filter - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
--- 
-----------------------------------------------------------------------------------
-
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -49,27 +29,25 @@ end function;
 type   shift_array is array(0 to M - 1) of std_logic_vector(15 downto 0);
 signal bits: integer := log2(M);
 signal last_output: signed(15 downto 0) := (others => '0');
+signal delay_line: shift_array := (others=>(others=>'0'));
 
 begin
   
     process(clk)
     variable result: signed(15 downto 0) := (others=>'0');
     variable temp: signed(15 downto 0) := (others=>'0');
-    variable delay_line: shift_array := (others=>(others=>'0'));
 
     begin 
         if rising_edge(clk) then
-           
             result := signed(input) - signed(delay_line(M - 1));
             temp := last_output + shift_right(result, bits);
             output <= std_logic_vector(temp);
             last_output <= temp;
-            result := (others => '0');
-            temp := (others => '0');
             for i in M - 1 downto 1 loop
-                 delay_line(i) := delay_line(i - 1);
+                delay_line(i) <= delay_line(i - 1);
             end loop;
-             delay_line(0) := input;
+            delay_line(0) <= input;
+           
         end if;
     end process;
 end Behavioral;
