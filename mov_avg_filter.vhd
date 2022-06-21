@@ -32,22 +32,16 @@ signal last_output: signed(15 downto 0) := (others => '0');
 signal delay_line: shift_array := (others=>(others=>'0'));
 
 begin
-  
     process(clk)
     variable result: signed(15 downto 0) := (others=>'0');
     variable temp: signed(15 downto 0) := (others=>'0');
-
     begin 
         if rising_edge(clk) then
             result := signed(input) - signed(delay_line(M - 1));
             temp := last_output + shift_right(result, bits);
             output <= std_logic_vector(temp);
             last_output <= temp;
-            for i in M - 1 downto 1 loop
-                delay_line(i) <= delay_line(i - 1);
-            end loop;
-            delay_line(0) <= input;
-           
+            delay_line <= input & delay_line(0 to M - 2);
         end if;
     end process;
 end Behavioral;
